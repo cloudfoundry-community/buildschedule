@@ -29,3 +29,11 @@ students:
   email: gareth@company.com
 - name: Sally
   email: sally@company.com
+
+trainers:
+- name: Dr Nic Williams
+  email: drnic@starkandwayne.com
+- name: Quinn Anx
+  email: qanx@starkandwayne.com
+- name: Long Nguyen
+  email: lnguyen@starkandwayne.com

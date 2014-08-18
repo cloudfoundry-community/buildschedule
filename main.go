@@ -33,6 +33,10 @@ type Event struct {
 		Host    string `yaml:"host"`
 		SshPort int    `yaml:"port"`
 	}
+	Trainers []*struct {
+		Name  string
+		Email string
+	}
 }
 
 // NewEventFromYAML creates an Event from a YAML file
@@ -175,6 +179,7 @@ func (event *Event) generateHTML() (out string, err error) {
       <div class="row">
         <div class="col-md-2"></div>
         <div class="col-md-8">
+          <h3>Everyone</h3>
           <h3>Email all students</h3>
           <p>
             Select All & Copy into clipboard.
@@ -183,6 +188,16 @@ func (event *Event) generateHTML() (out string, err error) {
             <div class="input-group">
               <div class="input-group-addon">@</div>
               <input class="form-control" type="email" value="{{ range .Students }}{{ if .Email }}{{ .Name }} <{{ .Email }}>, {{ end }}{{ end }}" size=120>
+            </div>
+          </form>
+          <h3>Email all trainers</h3>
+          <p>
+            Select All & Copy into clipboard.
+          </p>
+          <form class="form-inline" role="form">
+            <div class="input-group">
+              <div class="input-group-addon">@</div>
+              <input class="form-control" type="email" value="{{ range .Trainers }}{{ if .Email }}{{ .Name }} <{{ .Email }}>, {{ end }}{{ end }}" size=120>
             </div>
           </form>
         </div>
