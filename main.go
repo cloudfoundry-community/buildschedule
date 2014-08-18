@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"flag"
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"os"
@@ -24,6 +25,13 @@ type Event struct {
 			LabMarkdownPath  string `yaml:"lab"`
 			LabHTMLPath      string
 		}
+	}
+	Students []*struct {
+		Name    string
+		Email   string
+		Login   string `yaml:"login"`
+		Host    string `yaml:"host"`
+		SshPort int    `yaml:"port"`
 	}
 }
 
@@ -69,6 +77,14 @@ func (event *Event) processLinks() {
 	}
 }
 
+func (event *Event) processStudentsForSharedServer(host string, port int) {
+	for index, student := range event.Students {
+		student.Login = fmt.Sprintf("student%d", index+1)
+		student.Host = host
+		student.SshPort = port
+	}
+}
+
 func (event *Event) generateHTML() (out string, err error) {
 	html := `
 <html>
@@ -111,6 +127,21 @@ func (event *Event) generateHTML() (out string, err error) {
 			</tr>
 		{{ end }}
     </table>
+		<br/>
+		<h2>Students</h2>
+		<table border=1>
+		<tr><th>Name</th><th>Email</th><th>Login</th></tr>
+		{{ range .Students }}
+		<tr>
+		<td>{{ .Name }}</td>
+		<td>{{ .Email }}</td>
+		<td>{{ .Login }}</td>
+		</tr>
+		{{ end }}
+		</table>
+
+		<h3>Email all students</h3>
+		<input type="text" value="{{ range .Students }}{{ if .Email }}{{ .Name }} <{{ .Email }}>, {{ end }}{{ end }}" size=60>
   </body>
 </html>
 `
@@ -129,6 +160,10 @@ func (event *Event) generateHTML() (out string, err error) {
 }
 
 func main() {
+	var host string
+	var port int
+	flag.StringVar(&host, "host", "", "host for shared student server")
+	flag.IntVar(&port, "port", 22, "ssh port for shared student server")
 	flag.Parse()
 
 	path := flag.Arg(0)
@@ -139,6 +174,7 @@ func main() {
 	}
 
 	event.processLinks()
+	event.processStudentsForSharedServer(host, port)
 
 	html, err := event.generateHTML()
 	if err != nil {
