@@ -61,6 +61,10 @@ func (event *Event) processLinks() {
 			if matches != nil {
 				item.DeckHTMLPath = "/" + matches[1] + "/index.html"
 			}
+			matches = filename.FindStringSubmatch(item.LabMarkdownPath)
+			if matches != nil {
+				item.LabHTMLPath = "/labs#!" + matches[1] + ".md"
+			}
 		}
 	}
 }
@@ -95,7 +99,7 @@ func (event *Event) generateHTML() (out string, err error) {
 		            [<a href="{{ .DeckHTMLPath }}">session slides</a>]
 		          {{ end }}
 		          {{ if .LabMarkdownPath }}
-		            [lab/workshop]
+		            [<a href="{{ .LabHTMLPath }}">lab/workshop</a>]
 		          {{ end }}
 	          </li>
 	          {{ else }}
