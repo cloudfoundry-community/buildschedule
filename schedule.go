@@ -31,7 +31,7 @@ type ScheduleItem struct {
 	LabHTMLPath      string
 }
 
-func importYAML(path string) (event Event, err error) {
+func importEvent(path string) (event Event, err error) {
 	file, err := os.Open(path)
 	if err != nil {
 		// TODO: how to wrap error with context?
@@ -63,7 +63,7 @@ func main() {
 	// fmt.Sprintf("%#v\n", flag.Arg(1))
 
 	path := flag.Arg(0)
-	event, err := importYAML(path)
+	event, err := importEvent(path)
 	if err != nil {
 		println("Error: " + err.Error())
 		return
