@@ -80,32 +80,33 @@ func (event *Event) generateHTML() (out string, err error) {
         <th>Location</th><td>{{ .Location }}</td>
       </tr>
     </table>
-    {{range .Schedule}}
-      <h2>{{ .Label }}</h2>
-      {{ if .Items }}
-        <ul>
-        {{ range .Items}}
-        {{ if .Name }}
-          <li class="item">
-          {{ .Name }}
-          {{ if .DeckMarkdownPath }}
-            <a href="{{ .DeckHTMLPath }}">session slides</a>
+		<table border=1>
+		<tr><th>Day</th><th>Topics</th></tr>
+    {{ range .Schedule }}
+			<tr>
+				<td>{{ .Label }}</td>
+				<td>
+					<ul>
+		      {{ range .Items }}
+					  {{ if .Name }}
+	          <li class="item">
+							{{ .Name }}
+		          {{ if .DeckMarkdownPath }}
+		            [<a href="{{ .DeckHTMLPath }}">session slides</a>]
+		          {{ end }}
+		          {{ if .LabMarkdownPath }}
+		            [lab/workshop]
+		          {{ end }}
+	          </li>
+	          {{ else }}
+	            <li class="break" />
+	          {{ end }}
           {{ end }}
-          {{ if .LabMarkdownPath }}
-            <a href="{{ .LabMarkdownPath }}">lab/workshop</a>
-          {{ end }}
-          </li>
-          {{ else }}
-            <li class="break" />
-          {{ end }}
-        {{ end }}
-        </ul>
-      {{ else }}
-        <p>No items scheduled for today.</p>
-      {{ end }}
-    {{ else }}
-    <p>No days scheduled yet.</p>
-    {{end}}
+					</ul>
+				</td>
+			</tr>
+		{{ end }}
+    </table>
   </body>
 </html>
 `
