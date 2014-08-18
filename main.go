@@ -1,92 +1,92 @@
 package main
 
 import (
-  "bytes"
-  "flag"
-  "fmt"
-  "html/template"
-  "io/ioutil"
-  "os"
-  "regexp"
+	"bytes"
+	"flag"
+	"fmt"
+	"html/template"
+	"io/ioutil"
+	"os"
+	"regexp"
 
-  "gopkg.in/yaml.v1"
+	"gopkg.in/yaml.v1"
 )
 
 // Event contains an entire training schedule
 type Event struct {
-  Title    string `yaml:"title"`
-  Location string `yaml:"location"`
-  Schedule []*struct {
-    Label string `yaml:"label"`
-    Items []*struct {
-      Name             string `yaml:"name"`
-      DeckMarkdownPath string `yaml:"deck"`
-      DeckHTMLPath     string
-      LabMarkdownPath  string `yaml:"lab"`
-      LabHTMLPath      string
-    }
-  }
-  Students []*struct {
-    Name    string
-    Email   string
-    Login   string `yaml:"login"`
-    Host    string `yaml:"host"`
-    SshPort int    `yaml:"port"`
-  }
+	Title    string `yaml:"title"`
+	Location string `yaml:"location"`
+	Schedule []*struct {
+		Label string `yaml:"label"`
+		Items []*struct {
+			Name             string `yaml:"name"`
+			DeckMarkdownPath string `yaml:"deck"`
+			DeckHTMLPath     string
+			LabMarkdownPath  string `yaml:"lab"`
+			LabHTMLPath      string
+		}
+	}
+	Students []*struct {
+		Name    string
+		Email   string
+		Login   string `yaml:"login"`
+		Host    string `yaml:"host"`
+		SshPort int    `yaml:"port"`
+	}
 }
 
 // NewEventFromYAML creates an Event from a YAML file
 func NewEventFromYAML(path string) (event *Event, err error) {
-  file, err := os.Open(path)
-  if err != nil {
-    // TODO: how to wrap error with context?
-    println("File does not exist:", err.Error())
-    return
-  }
+	file, err := os.Open(path)
+	if err != nil {
+		// TODO: how to wrap error with context?
+		println("File does not exist:", err.Error())
+		return
+	}
 
-  data, err := ioutil.ReadAll(file)
-  if err != nil {
-    // TODO: how to wrap error with context?
-    println("Could not read file: ", err.Error())
-    return
-  }
+	data, err := ioutil.ReadAll(file)
+	if err != nil {
+		// TODO: how to wrap error with context?
+		println("Could not read file: ", err.Error())
+		return
+	}
 
-  err = yaml.Unmarshal(data, &event)
-  if err != nil {
-    // TODO: how to wrap error with context?
-    println("Could not unmarshall YAML: ", err.Error())
-    return
-  }
-  return
+	err = yaml.Unmarshal(data, &event)
+	if err != nil {
+		// TODO: how to wrap error with context?
+		println("Could not unmarshall YAML: ", err.Error())
+		return
+	}
+	return
 }
 
 func (event *Event) processLinks() {
-  ignorePrefix := "public\\/"
-  for _, period := range event.Schedule {
-    for _, item := range period.Items {
-      filename := regexp.MustCompile(ignorePrefix + "(.+)\\.md")
-      matches := filename.FindStringSubmatch(item.DeckMarkdownPath)
-      if matches != nil {
-        item.DeckHTMLPath = "/" + matches[1] + "/index.html"
-      }
-      matches = filename.FindStringSubmatch(item.LabMarkdownPath)
-      if matches != nil {
-        item.LabHTMLPath = "/labs#!" + matches[1] + ".md"
-      }
-    }
-  }
+	ignorePrefix := "public\\/"
+	for _, period := range event.Schedule {
+		for _, item := range period.Items {
+			filename := regexp.MustCompile(ignorePrefix + "(.+)\\.md")
+			matches := filename.FindStringSubmatch(item.DeckMarkdownPath)
+			if matches != nil {
+				item.DeckHTMLPath = "/" + matches[1] + "/index.html"
+			}
+			matches = filename.FindStringSubmatch(item.LabMarkdownPath)
+			if matches != nil {
+				item.LabHTMLPath = "/labs#!" + matches[1] + ".md"
+			}
+		}
+	}
 }
 
 func (event *Event) processStudentsForSharedServer(host string, port int) {
-  for index, student := range event.Students {
-    student.Login = fmt.Sprintf("student%d", index+1)
-    student.Host = host
-    student.SshPort = port
-  }
+	for index, student := range event.Students {
+		student.Login = fmt.Sprintf("student%d", index+1)
+		student.Host = host
+		student.SshPort = port
+	}
 }
 
 func (event *Event) generateHTML() (out string, err error) {
-  html := `
+	html := `
   <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -116,7 +116,7 @@ func (event *Event) generateHTML() (out string, err error) {
         <div class="col-md-2"></div>
         <div class="col-md-8">
           <h2>Schedule</h2>
-          <table class="table">
+          <table class="table table-hover">
             <tr><th>Day</th><th>Topics</th></tr>
             {{ range .Schedule }}
             <tr>
@@ -155,7 +155,7 @@ func (event *Event) generateHTML() (out string, err error) {
         <div class="col-md-8">
           <h2>Students</h2>
 
-          <table class="table">
+          <table class="table table-hover">
             <tr><th>Name</th><th>Email</th><th>Login</th></tr>
 
             {{ range .Students }}
@@ -195,42 +195,42 @@ func (event *Event) generateHTML() (out string, err error) {
   </body>
 </html>
   `
-  tmpl, err := template.New("schedule").Parse(html)
-  if err != nil {
-    return "", err
-  }
-  buf := new(bytes.Buffer)
+	tmpl, err := template.New("schedule").Parse(html)
+	if err != nil {
+		return "", err
+	}
+	buf := new(bytes.Buffer)
 
-  err = tmpl.Execute(buf, event)
-  if err != nil {
-    return "", err
-  }
+	err = tmpl.Execute(buf, event)
+	if err != nil {
+		return "", err
+	}
 
-  return buf.String(), nil
+	return buf.String(), nil
 }
 
 func main() {
-  var host string
-  var port int
-  flag.StringVar(&host, "host", "", "host for shared student server")
-  flag.IntVar(&port, "port", 22, "ssh port for shared student server")
-  flag.Parse()
+	var host string
+	var port int
+	flag.StringVar(&host, "host", "", "host for shared student server")
+	flag.IntVar(&port, "port", 22, "ssh port for shared student server")
+	flag.Parse()
 
-  path := flag.Arg(0)
-  event, err := NewEventFromYAML(path)
-  if err != nil {
-    println("Error: " + err.Error())
-    return
-  }
+	path := flag.Arg(0)
+	event, err := NewEventFromYAML(path)
+	if err != nil {
+		println("Error: " + err.Error())
+		return
+	}
 
-  event.processLinks()
-  event.processStudentsForSharedServer(host, port)
+	event.processLinks()
+	event.processStudentsForSharedServer(host, port)
 
-  html, err := event.generateHTML()
-  if err != nil {
-    println("Error: " + err.Error())
-    return
-  }
+	html, err := event.generateHTML()
+	if err != nil {
+		println("Error: " + err.Error())
+		return
+	}
 
-  println(html)
+	println(html)
 }
