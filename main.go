@@ -87,64 +87,114 @@ func (event *Event) processStudentsForSharedServer(host string, port int) {
 
 func (event *Event) generateHTML() (out string, err error) {
 	html := `
-<html>
+	<!DOCTYPE html>
+<html lang="en">
   <head>
     <title>{{ .Title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap -->
+    <link href="bootstrap-3.2.0-dist/css/bootstrap.min.css" rel="stylesheet">
   </head>
   <body>
-    <table id="main-details">
-      <tr>
-        <th>Event</th><td>{{ .Title }}</td>
-      </tr>
-      <tr>
-        <th>Location</th><td>{{ .Location }}</td>
-      </tr>
-    </table>
-		<table border=1>
-		<tr><th>Day</th><th>Topics</th></tr>
-    {{ range .Schedule }}
-			<tr>
-				<td>{{ .Label }}</td>
-				<td>
-					<ul>
-		      {{ range .Items }}
-					  {{ if .Name }}
-	          <li class="item">
-							{{ .Name }}
-		          {{ if .DeckMarkdownPath }}
-		            [<a href="{{ .DeckHTMLPath }}">session slides</a>]
-		          {{ end }}
-		          {{ if .LabMarkdownPath }}
-		            [<a href="{{ .LabHTMLPath }}">lab/workshop</a>]
-		          {{ end }}
-	          </li>
-	          {{ else }}
-	            <li class="break" />
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+          <h1>{{ .Title }}</h1>
+          <table class="table">
+            <tr>
+              <th>Event</th><td>AT&amp;T Testing Training</td>
+            </tr>
+            <tr>
+              <th>Location</th><td>{{ .Location }}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-md-2"></div>
+      </div>
+      <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+	        <h2>Schedule</h2>
+	        <table class="table">
+	      		<tr><th>Day</th><th>Topics</th></tr>
+						{{ range .Schedule }}
+	        	<tr>
+	        		<td>{{ .Label }}</td>
+	        		<td>
+	        			<ul>
+	        			{{ range .Items }}
+	        				{{ if .Name }}
+	        				<li class="item">
+	        					{{ .Name }}
+	        					{{ if .DeckMarkdownPath }}
+	        						[<a href="{{ .DeckHTMLPath }}">session slides</a>]
+	        					{{ end }}
+	        					{{ if .LabMarkdownPath }}
+	        						[<a href="{{ .LabHTMLPath }}">lab/workshop</a>]
+	        					{{ end }}
+	        				</li>
+	        				{{ else }}
+	        					<li class="break" />
+	        				{{ end }}
+	        			{{ end }}
+	        			</ul>
+	        		</td>
+	        	</tr>
 	          {{ end }}
-          {{ end }}
-					</ul>
-				</td>
-			</tr>
-		{{ end }}
-    </table>
-		<br/>
-		<h2>Students</h2>
-		<table border=1>
-		<tr><th>Name</th><th>Email</th><th>Login</th></tr>
-		{{ range .Students }}
-		<tr>
-		<td>{{ .Name }}</td>
-		<td>{{ .Email }}</td>
-		<td>{{ .Login }}</td>
-		</tr>
-		{{ end }}
-		</table>
 
-		<h3>Email all students</h3>
-		<input type="text" value="{{ range .Students }}{{ if .Email }}{{ .Name }} <{{ .Email }}>, {{ end }}{{ end }}" size=60>
+	          </table>
+          </div>
+          <div class="col-md-2"></div>
+
+        </div>
+      </div>
+  		<br/>
+      <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+          <h2>Students</h2>
+
+          <table class="table">
+        		<tr><th>Name</th><th>Email</th><th>Login</th></tr>
+
+            {{ range .Students }}
+            <tr>
+            <td>{{ .Name }}</td>
+            <td>{{ .Email }}</td>
+            <td>{{ .Login }}</td>
+            </tr>
+            {{ end }}
+
+        		</table>
+          </div>
+          <div class="col-md-2"></div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+      		<h3>Email all students</h3>
+          <p>
+            Select All & Copy into clipboard.
+          </p>
+      		<input type="text" value="{{ range .Students }}{{ if .Email }}{{ .Name }} <{{ .Email }}>, {{ end }}{{ end }}" size=120>
+        </div>
+        <div class="col-md-2"></div>
+      </div>
+    </div>
+    <br/>
+    <br/>
+    <br/>
+
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="bootstrap-3.2.0-dist/js/bootstrap.min.js"></script>
   </body>
 </html>
-`
+	`
 	tmpl, err := template.New("schedule").Parse(html)
 	if err != nil {
 		return "", err
