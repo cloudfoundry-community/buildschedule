@@ -179,7 +179,12 @@ func (event *Event) generateHTML() (out string, err error) {
           <p>
             Select All & Copy into clipboard.
           </p>
-          <input type="text" value="{{ range .Students }}{{ if .Email }}{{ .Name }} <{{ .Email }}>, {{ end }}{{ end }}" size=120>
+          <form class="form-inline" role="form">
+            <div class="input-group">
+              <div class="input-group-addon">@</div>
+              <input class="form-control" type="email" value="{{ range .Students }}{{ if .Email }}{{ .Name }} <{{ .Email }}>, {{ end }}{{ end }}" size=120>
+            </div>
+          </form>
         </div>
         <div class="col-md-2"></div>
       </div>
