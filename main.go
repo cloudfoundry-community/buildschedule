@@ -9,6 +9,7 @@ import (
 	"os"
 	"regexp"
 
+	"github.com/ftrvxmtrx/gravatar"
 	"gopkg.in/yaml.v1"
 )
 
@@ -27,15 +28,17 @@ type Event struct {
 		}
 	}
 	Students []*struct {
-		Name    string
-		Email   string
-		Login   string `yaml:"login"`
-		Host    string `yaml:"host"`
-		SshPort int    `yaml:"port"`
+		Name        string
+		Email       string
+		GravatarURL string
+		Login       string `yaml:"login"`
+		Host        string `yaml:"host"`
+		SshPort     int    `yaml:"port"`
 	}
 	Trainers []*struct {
-		Name  string
-		Email string
+		Name        string
+		Email       string
+		GravatarURL string
 	}
 }
 
@@ -86,6 +89,23 @@ func (event *Event) processStudentsForSharedServer(host string, port int) {
 		student.Login = fmt.Sprintf("student%d", index+1)
 		student.Host = host
 		student.SshPort = port
+	}
+}
+
+func (event *Event) processGravatarURLs() {
+	for _, person := range event.Students {
+		if person.Email != "" {
+			emailHash := gravatar.EmailHash(person.Email)
+			url := gravatar.GetAvatarURL("https", emailHash, gravatar.DefaultWavatar, 48)
+			person.GravatarURL = url.String()
+		}
+	}
+	for _, person := range event.Trainers {
+		if person.Email != "" {
+			emailHash := gravatar.EmailHash(person.Email)
+			url := gravatar.GetAvatarURL("https", emailHash, gravatar.DefaultWavatar, 48)
+			person.GravatarURL = url.String()
+		}
 	}
 }
 
@@ -160,13 +180,36 @@ func (event *Event) generateHTML() (out string, err error) {
           <h2>Students</h2>
 
           <table class="table table-hover">
-            <tr><th>Name</th><th>Email</th><th>Login</th></tr>
+            <tr><th>Name</th><th>Email</th><th>Login</th><th>Image</th></tr>
 
             {{ range .Students }}
             <tr>
             <td>{{ .Name }}</td>
             <td>{{ .Email }}</td>
             <td>{{ .Login }}</td>
+            <td>{{ if .GravatarURL }}<img src="{{ .GravatarURL }}" class="img-circle">{{ end }}</td>
+            </tr>
+            {{ end }}
+
+            </table>
+						<p><a href="http://en.gravatar.com/">Update your Gravatar image</a></p>
+          </div>
+          <div class="col-md-2"></div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+          <h2>Trainers</h2>
+
+          <table class="table table-hover">
+            <tr><th>Name</th><th>Email</th><th>Image</th></tr>
+
+            {{ range .Trainers }}
+            <tr>
+            <td>{{ .Name }}</td>
+            <td>{{ .Email }}</td>
+            <td>{{ if .GravatarURL }}<img src="{{ .GravatarURL }}" class="img-circle">{{ end }}</td>
             </tr>
             {{ end }}
 
@@ -245,6 +288,7 @@ func main() {
 
 	event.processLinks()
 	event.processStudentsForSharedServer(host, port)
+	event.processGravatarURLs()
 
 	html, err := event.generateHTML()
 	if err != nil {
