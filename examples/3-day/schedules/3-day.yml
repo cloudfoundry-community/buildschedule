@@ -7,7 +7,7 @@ schedule:
 - label: Monday
   items:
   - name: Morning
-    deck: public/decks/day-1-morning.md
+    deck: public/decks/day-1-morning.md # => /decks/day-1-morning/index.html
   - name: Afternoon
     deck: public/decks/day-1-afternoon.md
 - label: Tuesday

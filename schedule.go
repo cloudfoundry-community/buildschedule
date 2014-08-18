@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"flag"
-	"fmt"
 	"html/template"
 	"io/ioutil"
 	"os"
@@ -14,24 +13,18 @@ import (
 
 // Event contains an entire training schedule
 type Event struct {
-	Title    string        `yaml:"title"`
-	Location string        `yaml:"location"`
-	Schedule []EventPeriod `yaml:"schedule"`
-}
-
-// EventPeriod contains the schedule items for a particular time period, such as a day
-type EventPeriod struct {
-	Label string         `yaml:"label"`
-	Items []ScheduleItem `yaml:"items"`
-}
-
-// ScheduleItem describes a scheduled item
-type ScheduleItem struct {
-	Name             string `yaml:"name"`
-	DeckMarkdownPath string `yaml:"deck"`
-	DeckHTMLPath     string
-	LabMarkdownPath  string `yaml:"lab"`
-	LabHTMLPath      string
+	Title    string `yaml:"title"`
+	Location string `yaml:"location"`
+	Schedule []*struct {
+		Label string `yaml:"label"`
+		Items []*struct {
+			Name             string `yaml:"name"`
+			DeckMarkdownPath string `yaml:"deck"`
+			DeckHTMLPath     string
+			LabMarkdownPath  string `yaml:"lab"`
+			LabHTMLPath      string
+		}
+	}
 }
 
 // NewEventFromYAML creates an Event from a YAML file
@@ -65,16 +58,11 @@ func (event *Event) processLinks() {
 		for _, item := range period.Items {
 			filename := regexp.MustCompile(ignorePrefix + "(.+)\\.md")
 			matches := filename.FindStringSubmatch(item.DeckMarkdownPath)
-			fmt.Printf("%#v\n", filename)
-			fmt.Printf("%#v\n", matches)
 			if matches != nil {
-				item.DeckHTMLPath = matches[1] + "/index.html"
+				item.DeckHTMLPath = "/" + matches[1] + "/index.html"
 			}
-			fmt.Printf("%#v\n", item)
 		}
 	}
-	// TODO: changes to items aren't available here
-	fmt.Printf("%#v\n", event)
 }
 
 func (event *Event) generateHTML() (out string, err error) {
@@ -137,10 +125,6 @@ func (event *Event) generateHTML() (out string, err error) {
 
 func main() {
 	flag.Parse()
-
-	// fmt.Sprintf("%#v\n", flag.Args())
-	// fmt.Sprintf("%#v\n", flag.Arg(0))
-	// fmt.Sprintf("%#v\n", flag.Arg(1))
 
 	path := flag.Arg(0)
 	event, err := NewEventFromYAML(path)
