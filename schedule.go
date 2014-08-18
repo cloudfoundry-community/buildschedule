@@ -1,8 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"flag"
-	"fmt"
+	"html/template"
 	"io/ioutil"
 	"os"
 
@@ -55,6 +56,31 @@ func importEvent(path string) (event Event, err error) {
 	return
 }
 
+func generateHTML(event Event) (out string, err error) {
+	html := `
+<html>
+  <head>
+    <title>{{ .Title }}</title>
+  </head>
+  <body>
+
+  </body>
+</html>
+`
+	tmpl, err := template.New("schedule").Parse(html)
+	if err != nil {
+		return "", err
+	}
+	buf := new(bytes.Buffer)
+
+	err = tmpl.Execute(buf, event)
+	if err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
+}
+
 func main() {
 	flag.Parse()
 
@@ -68,5 +94,11 @@ func main() {
 		println("Error: " + err.Error())
 		return
 	}
-	fmt.Printf("%#v\n", event)
+	html, err := generateHTML(event)
+	if err != nil {
+		println("Error: " + err.Error())
+		return
+	}
+
+	println(html)
 }
