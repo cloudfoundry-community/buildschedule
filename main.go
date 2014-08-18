@@ -74,10 +74,10 @@ func (event *Event) generateHTML() (out string, err error) {
   <body>
     <table id="main-details">
       <tr>
-        <th>Event</th><td>Example 3 day training</td>
+        <th>Event</th><td>{{ .Title }}</td>
       </tr>
       <tr>
-        <th>Location</th><td>Stark & Wayne HQ<br/>Buffalo, NY</td>
+        <th>Location</th><td>{{ .Location }}</td>
       </tr>
     </table>
     {{range .Schedule}}
