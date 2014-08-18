@@ -97,7 +97,19 @@ func (event *Event) generateHTML() (out string, err error) {
       {{ if .Items }}
       <ul>
       {{ range .Items}}
-        <li><a href="{{ .DeckHTMLPath }}">{{ .Name }}</a></li>
+				{{ if .Name }}
+        <li class="item">
+					{{ .Name }}
+					{{ if .DeckMarkdownPath }}
+						<a href="{{ .DeckHTMLPath }}">session slides</a>
+					{{ end }}
+					{{ if .LabMarkdownPath }}
+						<a href="{{ .LabMarkdownPath }}">lab/workshop</a>
+					{{ end }}
+				</li>
+				{{ else }}
+				<li class="break" />
+				{{ end }}
       {{ end }}
       </ul>
       {{ else }}
