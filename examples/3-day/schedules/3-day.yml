@@ -13,7 +13,7 @@ schedule:
 - label: Tuesday
   items:
   - name: All day labs
-    lab: public/labs/day-2-allday.md
+    lab: public/labs/do-a-lab.md
 - label: Wednesday
   items:
   - name: Morning
