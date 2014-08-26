@@ -127,7 +127,7 @@ func (event *Event) generateHTML() (out string, err error) {
           <h1>{{ .Title }}</h1>
           <table class="table">
             <tr>
-              <th>Event</th><td>AT&amp;T Testing Training</td>
+              <th>Event</th><td>{{ .Title }}</td>
             </tr>
             <tr>
               <th>Location</th><td>{{ .Location }}</td>
