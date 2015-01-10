@@ -74,11 +74,11 @@ func (event *Event) processLinks() {
 			filename := regexp.MustCompile(ignorePrefix + "(.+)\\.md")
 			matches := filename.FindStringSubmatch(item.DeckMarkdownPath)
 			if matches != nil {
-				item.DeckHTMLPath = "/" + matches[1] + "/index.html"
+				item.DeckHTMLPath = "/" + matches[1] + ".html"
 			}
 			matches = filename.FindStringSubmatch(item.LabMarkdownPath)
 			if matches != nil {
-				item.LabHTMLPath = "/labs#!" + matches[1] + ".md"
+				item.LabHTMLPath = "/mdwiki.html#!" + matches[1] + ".md"
 			}
 		}
 	}
@@ -118,6 +118,7 @@ func (event *Event) generateHTML() (out string, err error) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Bootstrap -->
     <link href="bootstrap-3.2.0-dist/css/bootstrap.min.css" rel="stylesheet">
+		<base target="_blank">
   </head>
   <body>
     <div class="container-fluid">
